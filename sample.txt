@@ -1,0 +1,83 @@
+In my previous article about map(), where() and reduce() methods, we’ve explored three of the most utilized collection methods in Dart. If you have missed that article and would like to know more about those methods, you can read it here.
+
+When I published that article, many in the dev community wanted me to include fold() in it. Seeing how widely used and how unique fold() is, I wanted to write an article dedicated solely towards it. The aim of this article is as follows:
+
+Conceptual understanding of fold().
+Notable differences between fold() and reduce() with code examples.
+Conceptual Understanding
+The fold() method, like reduce(), map() or where(), is an extension of the forEach() loop with the ability to accept conditions and return either a single value or a new collection, without modifying the original collection (yes, immutability). As I’ve already briefly discussed the importance of immutability in my previous article, I shall drop a reference to it here.
+
+The fold() method operates almost exactly like reduce(), it is an accumulator function. It compares the current value to the preceding values based on the condition fed to it and returns a single value as a result. The fold() method requires an initial value to be fed to it as part of the operation. This is part of its method signature and it’s implemented this way:
+
+T fold<T>(T initialValue, T combine(T previousValue, E element)) {
+var value = initialValue;
+for (E element in this) value = combine(value, element);
+return value;
+}
+Notable differences
+Since both fold() and reduce() are similar to each other, it is important for us to understand the differences between them. This allows making an informed decision on when to use the former or the latter to solve our programming problems.
+
+1. Accepts an initial value
+One of the major differences between fold() and reduce(), is that fold() allows us to provide it not only with a condition but also an initial value.
+
+List<int> ages = [22, 28, 27, 19, 18];
+The reduce() method assumes the value at index 0 as the initial value:
+
+int totalAge = ages.reduce((totalLength, element) => totalLength + element);
+When we print out totalAge , we will get a value of 114.
+
+The fold() method will treat the value fed to it as the initial value. This allows to dictate which value the operation should start from and affects the overall outcome:
+
+int totalAge = ages.fold(10, (totalLength, element) => totalLength + element);
+print(totalAge); // 124
+2. Able to operate on an empty collection
+The reduce() method cannot operate on an empty collection. Let’s see an example to understand it further.
+
+List<String> ages = [];
+String totalAge = ages.reduce((value, element) => value + element);
+When it attempts to iterate through names collection, it will encounter an error: Bad state: No element
+
+Now let’s see what happens when we use fold().
+
+List<String> ages = [];
+String totalAge = ages.fold(10, (value, element) => value + element);
+print(totalAge); // 10
+The fold() method can gracefully handle this. This is primarily due to the fact that it has an initial value acting as a fallback. The initial value becomes the minimum support.
+
+3. Able to return a different value type from the collection its operating on
+Similar to the reduce() method, fold() also gives us back a single value, but unlike reduce(), which needs to return the same type of value as the collection back to the callback, fold() can return an entirely different type of value regardless of the collection’s type.
+
+So, if you’re working on a collection of type string then reduce() will only return a string as the final result.
+
+Whereas fold() can return an integer if it needs to even if it is operating on a list of string .
+
+Now, this can be slightly confusing, so bear with me as I give a relatively lengthy example to explain this.
+
+So let’s look at a problem, and figure out how we can solve it with the fold() method’s unique characteristic.
+
+Context:
+
+A numerology calculator app has four input fields.
+
+
+The values from these fields are added into a List of type string.
+
+List<String> names = ["John", "Doe", "Jane", "Doe"];
+The algorithm to calculate compatibility primarily relies on the total length of the names in names. We cannot calculate the total length of all the strings in the List using reduce().
+
+names.reduce((totalLength, element) => totalLength + element.length);
+This will produce an error saying: The argument type ‘int’ can’t be assigned to the parameter type ‘String’.
+
+This is due to the fact that, reduce() requires the returning value to be the same type throughout the operation.
+
+In these instances, we can use fold() to solve this problem:
+
+int totalNamesLength = names.fold(0, (totalLength, element) => totalLength + element.length);
+print(totalNamesLength); // 14
+Conclusion
+Now that we’ve arrived at the end of this article, these are the takeaways from it:
+
+fold() is an accumulator method, similar to reduce()
+fold() allows us to give the operation an initial value rather than assuming the first value in the collection as the initial value
+fold() can operate on an empty collection and handle it gracefully
+fold() can return a value different from the type of value in the collection it is operating on.
